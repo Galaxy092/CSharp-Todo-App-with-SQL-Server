@@ -2,10 +2,7 @@
 using C__Todo_App_with_SQL_Server.DB;
 using System;
 using System.Data;
-using System.Drawing;
-using System.Net;
 using System.Windows.Forms;
-using System.Configuration;
 
 namespace C__Todo_App_with_SQL_Server
 {
@@ -14,6 +11,7 @@ namespace C__Todo_App_with_SQL_Server
         DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
         DataGridViewButtonColumn col_update = new DataGridViewButtonColumn();
         DataGridViewButtonColumn col_delete = new DataGridViewButtonColumn();
+        public TodoManager todoMgr = new TodoManager();
 
         public frmTodo()
         {
@@ -28,7 +26,8 @@ namespace C__Todo_App_with_SQL_Server
             dtpDate.Text = DateTime.Now.ToShortTimeString();
         }
 
-        private void vLoadData()
+        // Get All Todo
+        public void vLoadData()
         {
             // SQL Query to Read Data
             string sql = " usp_TodoList '', '', '', '', '', 'VIEW'";
@@ -79,9 +78,9 @@ namespace C__Todo_App_with_SQL_Server
         // Button Add with Event Click to Add Data and LoadData
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            if(IsValidData())
+            if (IsValidData())
             {
-                TodoManager.vAddData(txtTitle, dtpDate, txtDescription);
+                todoMgr.vAddData(txtTitle, dtpDate, txtDescription);
                 txtTitle.Text = "";
                 txtDescription.Text = "";
             }
@@ -104,17 +103,17 @@ namespace C__Todo_App_with_SQL_Server
                 {
                     return;
                 }
-                if (bool.Parse(dgv["chk", e.RowIndex].Value.ToString()) == true && e.ColumnIndex == col_update.Index)
+                else if (bool.Parse(dgv["chk", e.RowIndex].Value.ToString()) == true && e.ColumnIndex == col_update.Index)
                 {
                     string _id = dgv["ID", e.RowIndex].Value.ToString();
-                    TodoManager.vUpdateData(_id);
-                    this.vLoadData();
+                    todoMgr.vUpdateData(_id);
+                    vLoadData();
                 }
                 else if (bool.Parse(dgv["chk", e.RowIndex].Value.ToString()) == true && e.ColumnIndex == col_delete.Index)
                 {
                     string _id = dgv["ID", e.RowIndex].Value.ToString();
-                    TodoManager.vDeleteData(_id);
-                    this.vLoadData();
+                    todoMgr.vDeleteData(_id);
+                    vLoadData();
                 }
             }
             catch (Exception ex)
@@ -123,7 +122,6 @@ namespace C__Todo_App_with_SQL_Server
             }
         }
 
-        // Exit Button
         private void btnExit_Click(object sender, EventArgs e)
         {
             Close();
