@@ -3,6 +3,7 @@ using C__Todo_App_with_SQL_Server.DB;
 using System;
 using System.Data;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace C__Todo_App_with_SQL_Server
 {
@@ -85,6 +86,7 @@ namespace C__Todo_App_with_SQL_Server
                 txtDescription.Text = "";
             }
             vLoadData();
+            txtTitle.Focus();
         }
 
         // Validate TextBox
@@ -109,12 +111,6 @@ namespace C__Todo_App_with_SQL_Server
                     todoMgr.vUpdateData(_id);
                     vLoadData();
                 }
-                else if (bool.Parse(dgv["chk", e.RowIndex].Value.ToString()) == true && e.ColumnIndex == col_delete.Index)
-                {
-                    string _id = dgv["ID", e.RowIndex].Value.ToString();
-                    todoMgr.vDeleteData(_id);
-                    vLoadData();
-                }
             }
             catch (Exception ex)
             {
@@ -125,6 +121,16 @@ namespace C__Todo_App_with_SQL_Server
         private void btnExit_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void dgv_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.ColumnIndex == col_delete.Index)
+            {
+                string id = dgv["ID", e.RowIndex].Value.ToString();
+                todoMgr.vDeleteData(id);
+                vLoadData();
+            }
         }
     }
 }
