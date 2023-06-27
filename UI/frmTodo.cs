@@ -3,7 +3,6 @@ using C__Todo_App_with_SQL_Server.DB;
 using System;
 using System.Data;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace C__Todo_App_with_SQL_Server
 {
@@ -22,19 +21,19 @@ namespace C__Todo_App_with_SQL_Server
         private void frmTodo_Load(object sender, EventArgs e)
         {
             // Load Data
-            vLoadData();
+            loadTodo();
             // Get recent data time
             dtpDate.Text = DateTime.Now.ToShortTimeString();
         }
 
         // Get All Todo
-        public void vLoadData()
+        public void loadTodo()
         {
             // SQL Query to Read Data
             string sql = " usp_TodoList '', '', '', '', '', 'VIEW'";
 
             // Execute SQL Query
-            DataSet ds = DBConnection.vFillDataSet(sql);
+            DataSet ds = DBConnection.GetConnection(sql);
 
             dgv.Columns.Clear();
             // Customize Column Name, Text, HeaderText and ColumnTextForButtonValue
@@ -43,7 +42,6 @@ namespace C__Todo_App_with_SQL_Server
             col_update.UseColumnTextForButtonValue = true;
             col_delete.Name = "Delete"; col_delete.Text = "Delete"; col_delete.HeaderText = "Delete";
             col_delete.UseColumnTextForButtonValue = true;
-
 
             dgv.DataSource = ds.Tables[0];
 
@@ -81,12 +79,12 @@ namespace C__Todo_App_with_SQL_Server
         {
             if (IsValidData())
             {
-                todoMgr.vAddData(txtTitle, dtpDate, txtDescription);
+                todoMgr.addTodo(txtTitle, dtpDate, txtDescription);
                 txtTitle.Text = "";
                 txtDescription.Text = "";
+                txtTitle.Focus();
             }
-            vLoadData();
-            txtTitle.Focus();
+            loadTodo();
         }
 
         // Validate TextBox
@@ -106,10 +104,10 @@ namespace C__Todo_App_with_SQL_Server
                     return;
                 }
                 else if (bool.Parse(dgv["chk", e.RowIndex].Value.ToString()) == true && e.ColumnIndex == col_update.Index)
-                {
+                { 
                     string _id = dgv["ID", e.RowIndex].Value.ToString();
-                    todoMgr.vUpdateData(_id);
-                    vLoadData();
+                    todoMgr.updateTodo(_id);
+                    loadTodo();
                 }
             }
             catch (Exception ex)
@@ -125,11 +123,34 @@ namespace C__Todo_App_with_SQL_Server
 
         private void dgv_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.ColumnIndex == col_delete.Index)
+            try
             {
-                string id = dgv["ID", e.RowIndex].Value.ToString();
-                todoMgr.vDeleteData(id);
-                vLoadData();
+                if (e.ColumnIndex == col_delete.Index)
+                {
+                    string id = dgv["ID", e.RowIndex].Value.ToString();
+                    string title = dgv["Title", e.RowIndex].Value.ToString();
+                    string message = "Are you sure you want to delete " + title + "?";
+                    DialogResult button = MessageBox.Show(message, "Confirm Delete", MessageBoxButtons.YesNo);
+                    if (button == DialogResult.Yes)
+                    {
+                        todoMgr.deleteTodo(id);
+                        loadTodo();
+                    }
+                }
+                else if (e.ColumnIndex == 4)
+                {
+                    string description = dgv["Description", e.RowIndex].Value.ToString();
+                    MessageBox.Show(description, "Todo Description");
+                }
+                else if(e.ColumnIndex == 1) 
+                {
+                    string title = dgv["Title", e.RowIndex].Value.ToString();
+                    MessageBox.Show(title, "Todo Title");
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }
