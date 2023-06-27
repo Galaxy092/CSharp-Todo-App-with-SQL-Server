@@ -5,7 +5,7 @@ namespace C__Todo_App_with_SQL_Server.DB
 {
     public static class DBConnection
     {
-        public static DataSet vFillDataSet(string sql)
+        public static DataSet GetConnection(string sql)
         {
             DataSet ds = new DataSet();
             // String Connection
